@@ -14,10 +14,6 @@ public interface ModuleInterface extends Remote{
 	
 	public void start() throws RemoteException;
 	
-	public void end() throws RemoteException;
-	
-	public void restart() throws RemoteException;
-	
 	public void stop() throws RemoteException;
 	
 	public String getStatus() throws RemoteException;
