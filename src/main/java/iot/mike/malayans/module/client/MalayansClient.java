@@ -55,8 +55,11 @@ public class MalayansClient implements ModuleInterface{
 			DataOutputStream 	writer					= null;	
 			
 			try {
+				logger.info("正在连接..." 
+						+ Setting.str_MalayansIP + ":"
+						+ Setting.int_DataInPort);
 				clientSocket = new Socket(
-						Setting.MalayansIP, 
+						Setting.str_MalayansIP, 
 						Setting.int_DataInPort);
 				reader = new DataInputStream(clientSocket.getInputStream());
 				writer = new DataOutputStream(clientSocket.getOutputStream());
@@ -146,8 +149,6 @@ public class MalayansClient implements ModuleInterface{
 	
 	public static void main(String[] args) throws RemoteException {
 		MalayansClient malayansClient = new MalayansClient();
-		malayansClient.start();
-		malayansClient.stop();
-		malayansClient.start();
+		malayansClient.registModule();
 	}
 }

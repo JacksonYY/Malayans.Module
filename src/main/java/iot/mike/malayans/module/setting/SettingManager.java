@@ -30,6 +30,7 @@ public class SettingManager {
 				properties.load(new FileReader(settingFile));
 				if (checkProperty(properties)) {
 					logger.info("Property read complete!");
+					this.updateSetting(properties);
 				}else {
 					properties = null;	//读取失败删除
 					logger.warning("Property is wrong!");
@@ -98,12 +99,28 @@ public class SettingManager {
 				String.valueOf(Setting.int_DataInPort));
 		
 		properties.put(Setting.MalayansIP, 
-				Setting.MalayansIP);
+				Setting.str_MalayansIP);
 		
 		properties.put(Setting.ModuleID, 
 				Setting.str_ModuleID);
 		
 		properties.put(Setting.ModuleDescription, 
 				Setting.str_ModuleDescription);
+		
+		properties.put(Setting.TaskClass, 
+				Setting.str_TaskClass);
+	}
+	
+	private void updateSetting(Properties properties) {
+		Setting.str_MalayansIP = 
+				properties.getProperty(Setting.MalayansIP);
+		Setting.str_ModuleDescription = 
+				properties.getProperty(Setting.ModuleDescription);
+		Setting.str_ModuleID = 
+				properties.getProperty(Setting.ModuleID);
+		Setting.int_DataInPort = 
+				Integer.valueOf(properties.getProperty(Setting.DataInPort));
+		Setting.str_TaskClass = 
+				properties.getProperty(Setting.TaskClass);
 	}
 }
