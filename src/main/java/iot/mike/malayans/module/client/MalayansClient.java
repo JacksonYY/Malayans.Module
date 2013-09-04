@@ -5,6 +5,8 @@ import iot.mike.malayans.module.setting.SettingManager;
 import iot.mike.malayans.rmimanager.interfaces.ModuleInterface;
 import iot.mike.malayans.rmimanager.ports.Port;
 import iot.mike.malayans.rmimanager.register.ModuleInfo;
+import iot.mike.malayans.rmimanager.register.ModuleStatus;
+import iot.mike.malayans.rmimanager.register.ModuleStatusEntry;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -13,6 +15,9 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import com.alibaba.fastjson.JSON;
@@ -21,11 +26,11 @@ import com.alibaba.fastjson.JSONException;
 public class MalayansClient implements ModuleInterface{
 	
 	private ModuleInfo 			moduleInfo					= null;
+	private Runnable			taskRunnable				= null;
 	private Thread 				mainThread					= null;
 	private SettingManager 		settingManager				= null;
 	private Logger 				logger						= null;
 	private Port 				port						= null;
-	private Runnable			taskRunnable				= null;
 	
 	public MalayansClient() {
 		settingManager = SettingManager.getInstance();
@@ -38,6 +43,7 @@ public class MalayansClient implements ModuleInterface{
 			moduleInfo.setDescription(Setting.str_ModuleDescription);
 			moduleInfo.setId(Setting.str_ModuleID);
 		}
+		
 		try {
 			Class<?> taskClass = Class.forName(Setting.str_TaskClass);
 			taskRunnable = (Runnable)taskClass.newInstance();
@@ -121,7 +127,43 @@ public class MalayansClient implements ModuleInterface{
 
 
 	public String getStatus() throws RemoteException {
-		return null;
+		Runtime rt 						= 			Runtime.getRuntime();
+		Set<ModuleStatusEntry> 
+			moduleStatusEntries			= 			new HashSet<ModuleStatusEntry>();
+		
+		long freeMemory 				= 			rt.freeMemory();
+		long totalMemory 				=			rt.totalMemory();
+		long maxMemory 					=			rt.maxMemory();
+		long availableProcessors 		= 			rt.availableProcessors();
+		
+		ModuleStatus moduleStatus = new ModuleStatus();
+		
+		ModuleStatusEntry entryFreeMemory = new ModuleStatusEntry();
+		entryFreeMemory.setKey("空闲内存(MB)");
+		entryFreeMemory.setValue(String.valueOf(freeMemory / 1024 / 1024));
+		
+		ModuleStatusEntry entryTotalMemory = new ModuleStatusEntry();
+		entryTotalMemory.setKey("总内存内存(MB)");
+		entryTotalMemory.setValue(String.valueOf(totalMemory / 1024 / 1024));
+		
+		ModuleStatusEntry entryMaxMemory = new ModuleStatusEntry();
+		entryMaxMemory.setKey("最大内存(MB)");
+		entryMaxMemory.setValue(String.valueOf(maxMemory / 1024 / 1024));
+		
+		ModuleStatusEntry entryAvailableProcessors = new ModuleStatusEntry();
+		entryAvailableProcessors.setKey("可用处理器个数(个)");
+		entryAvailableProcessors.setValue(String.valueOf(availableProcessors));
+		
+		moduleStatusEntries.add(entryAvailableProcessors);
+		moduleStatusEntries.add(entryMaxMemory);
+		moduleStatusEntries.add(entryTotalMemory);
+		moduleStatusEntries.add(entryFreeMemory);
+		
+		moduleStatus.setModuleStatusEntries(moduleStatusEntries);
+		
+		String jsonStatus = ToolsUtil.getJsonOrder(moduleStatus);
+		
+		return jsonStatus;
 	}
 
 
